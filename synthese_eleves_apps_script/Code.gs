@@ -1,14 +1,19 @@
 /** Menu professeur lié au tableur public de synthèse. Les élèves sont lecteurs. */
 function onOpen() {
-  SpreadsheetApp.getUi().createMenu('🧹 Effacer les résultats')
-    .addItem('Effacer les mesures de Seconde 1', 'effacerSeconde1')
-    .addItem('Effacer les mesures de Seconde 5', 'effacerSeconde5')
-    .addSeparator()
-    .addItem('Effacer les mesures des deux classes', 'effacerToutesLesMesures')
-    .addToUi();
+  const menu=SpreadsheetApp.getUi().createMenu('🧹 Effacer les résultats');
+  for(let n=1;n<=10;n++)menu.addItem('Effacer les mesures de Seconde '+n,'effacerSeconde'+n);
+  menu.addSeparator().addItem('Effacer les mesures de toutes les classes','effacerToutesLesMesures').addToUi();
 }
 function effacerSeconde1(){effacerMesures_('2nde 1');}
+function effacerSeconde2(){effacerMesures_('2nde 2');}
+function effacerSeconde3(){effacerMesures_('2nde 3');}
+function effacerSeconde4(){effacerMesures_('2nde 4');}
 function effacerSeconde5(){effacerMesures_('2nde 5');}
+function effacerSeconde6(){effacerMesures_('2nde 6');}
+function effacerSeconde7(){effacerMesures_('2nde 7');}
+function effacerSeconde8(){effacerMesures_('2nde 8');}
+function effacerSeconde9(){effacerMesures_('2nde 9');}
+function effacerSeconde10(){effacerMesures_('2nde 10');}
 function effacerToutesLesMesures(){effacerMesures_(null);}
 function lignesAEffacer_(rows,classe){
   return rows.flatMap((row,index)=>
@@ -17,7 +22,7 @@ function lignesAEffacer_(rows,classe){
 }
 function effacerMesures_(classe) {
   const ui=SpreadsheetApp.getUi();
-  const cible=classe || 'les deux classes';
+  const cible=classe || 'toutes les classes';
   if(ui.alert('🧹 Effacer les résultats',
     'Effacer les mesures de '+cible+' dans le tableur professeur et remettre à jour les synthèses et histogrammes ?\n\nLes en-têtes et les notes individuelles seront conservés.\n\nConfirmer ?',
     ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
@@ -83,7 +88,7 @@ function refreshMeasureSummaries_() {
   writeMeasureSummary_(ss.getSheetByName('Synthèse PROF'),all,'toutes les classes');
   const publicSs=SpreadsheetApp.openById(CH12_PUBLIC_STATS_ID);
   writeMeasureSummary_(publicSs.getSheetByName('Synthèse élèves'),all,'toutes les classes');
-  ['2nde 1','2nde 5'].forEach(classe=>{
+  Array.from({length:10},(_,i)=>'2nde '+(i+1)).forEach(classe=>{
     const title='Synthèse '+classe,tab=publicSs.getSheetByName(title);
     if(!tab)throw new Error('Onglet collectif introuvable : '+title);
     writeMeasureSummary_(tab,valid.filter(r=>String(r[5])===classe).map(r=>Number(r[4])),classe);
