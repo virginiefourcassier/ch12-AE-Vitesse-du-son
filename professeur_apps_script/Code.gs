@@ -14,18 +14,21 @@ function onOpen() {
     .addItem('Effacer les présentations', 'clearPresentation')
     .addSeparator()
     .addItem('Effacer les deux séries de notes', 'clearBoth')
+    .addSeparator()
+    .addItem('Tout effacer, y compris l’ancien onglet Scores', 'clearAllIncludingLegacy')
     .addToUi();
 }
 
 function clearNumerical() { clearCh12_([CH12_NUMERICAL]); }
 function clearPresentation() { clearCh12_([CH12_PRESENTATION]); }
 function clearBoth() { clearCh12_([CH12_NUMERICAL, CH12_PRESENTATION]); }
+function clearAllIncludingLegacy() { clearCh12_([CH12_NUMERICAL, CH12_PRESENTATION, 'Scores']); }
 
 function clearCh12_(names) {
   const ui = SpreadsheetApp.getUi();
   const answer = ui.alert('🧹 Suppression des données',
     'Cette opération efface toutes les réponses et notes des onglets :\n'
-    + names.join('\n') + '\n\nLes titres des colonnes restent en place. L’ancien onglet Scores reste intact.\n\nConfirmer ?',
+    + names.join('\n') + '\n\nLes titres des colonnes restent en place. L’ancien onglet Scores n’est effacé que si tu l’as explicitement sélectionné.\n\nConfirmer ?',
     ui.ButtonSet.YES_NO);
   if (answer !== ui.Button.YES) return;
   const ss = SpreadsheetApp.openById(CH12_SHEET_ID);
