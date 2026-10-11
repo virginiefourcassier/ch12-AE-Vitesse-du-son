@@ -44,10 +44,10 @@ function measureStatistics_(speeds) {
   const n=speeds.length,mean=n?speeds.reduce((a,b)=>a+b,0)/n:null;
   const sigma=n>1?Math.sqrt(speeds.reduce((a,v)=>a+(v-mean)**2,0)/(n-1)):null;
   const u=n>1?sigma/Math.sqrt(n):null;
-  const start=n?Math.min(300,Math.floor(Math.min(...speeds)/25)*25):300;
-  const end=n?Math.max(450,(Math.floor(Math.max(...speeds)/25)+1)*25):450;
+  const start=n?Math.min(300,Math.floor(Math.min(...speeds)/10)*10):300;
+  const end=n?Math.max(450,(Math.floor(Math.max(...speeds)/10)+1)*10):450;
   const bins=[];
-  for(let low=start;low<end;low+=25)bins.push([low+' ≤ v < '+(low+25),speeds.filter(v=>v>=low&&v<low+25).length]);
+  for(let low=start;low<end;low+=10)bins.push([low+' ≤ v < '+(low+10),speeds.filter(v=>v>=low&&v<low+10).length]);
   return {n,mean,sigma,u,bins};
 }
 
@@ -70,7 +70,7 @@ function writeMeasureSummary_(sh,speeds,label) {
   const chart=sh.newChart().setChartType(Charts.ChartType.COLUMN).setNumHeaders(1).addRange(sh.getRange(7,1,data.bins.length+1,2))
     .setPosition(8,4,0,0).setOption('title','Répartition des célérités — '+label)
     .setOption('width',620).setOption('height',350).setOption('legend',{position:'none'})
-    .setOption('hAxis',{title:'Célérité v (m/s) — classes de largeur 25 m/s'})
+    .setOption('hAxis',{title:'Célérité v (m/s) — classes de largeur 10 m/s'})
     .setOption('vAxis',{title:'Effectif',minValue:0,format:'0',ticks:Array.from({length:Math.max(1,...data.bins.map(b=>b[1]))+1},(_,i)=>i)}).build();
   sh.getCharts().forEach(c=>sh.removeChart(c));sh.insertChart(chart);
 }
