@@ -245,18 +245,32 @@ function refreshMeasureSummaries_() {
   SpreadsheetApp.flush();
 }
 
-// Confirmation par une lecture indépendante : aucune note ni identité n'est exposée.
+// Lecture du reçu uniquement : aucun nom, aucune réponse brute ne sont publiés.
 function doGet(e) {
-  const p=e&&e.parameter||{},cb=String(p.callback||'');
+  const p=e&&e.parameter||{},cb=String(p.callback||''),kind=String(p.kind||'measure');
   if(!/^ch12MeasureReceipt_[a-zA-Z0-9_]+$/.test(cb))return ContentService.createTextOutput('Requête non prise en charge.');
-  let payload={type:'son-measure-receipt',ok:false,attemptId:String(p.attemptId||'')};
-  if(/^[a-zA-Z0-9-]{10,100}$/.test(payload.attemptId)){
-    try{
-      const sh=SpreadsheetApp.openById(CH12_MEASURES_ID).getSheetByName('Mesures');
-      const rows=sh.getLastRow()>1?sh.getRange(2,7,sh.getLastRow()-1,2).getValues():[];
-      const found=rows.find(row=>String(row[0])===payload.attemptId);
-      if(found)payload={...payload,ok:true,receipt:String(found[1])};
-    }catch(error){payload.error='Confirmation momentanément indisponible.';}
+  const attemptId=String(p.attemptId||'');
+  let payload={type:kind==='measure'?'son-measure-receipt':'son-result',kind,ok:false,attemptId};
+  if(/^[a-zA-Z0-9-]{10,100}$/.test(attemptId)&&['measure','numeric','presentation'].includes(kind)){
+    try {
+      const ss=SpreadsheetApp.openById(kind==='measure'?CH12_MEASURES_ID:CH12_SHEET_ID);
+      const sh=ss.getSheetByName(kind==='measure'?'Mesures':kind==='numeric'?CH12_NUMERICAL:CH12_PRESENTATION);
+      if(!sh)throw new Error('Onglet introuvable');
+      const idColumn=kind==='measure'?7:4;
+      const ids=sh.getLastRow()>1?sh.getRange(2,idColumn,sh.getLastRow()-1,1).getValues():[];
+      const index=ids.findIndex(row=>String(row[0])===attemptId);
+      if(index>=0){
+        const row=index+2;
+        const receipt=String(sh.getRange(row,kind==='measure'?8:kind==='numeric'?13:15).getValue());
+        if(/^[A-F0-9]{8}$/.test(receipt)){
+          if(kind==='measure')payload={...payload,ok:true,receipt};
+          else {
+            const score=Number(sh.getRange(row,kind==='numeric'?10:13).getValue());
+            if(Number.isInteger(score)&&score>=0&&score<=5)payload={...payload,ok:true,receipt,score,total:5};
+          }
+        }
+      }
+    } catch(error){payload.error='Confirmation momentanément indisponible.';}
   }
   return ContentService.createTextOutput(cb+'('+JSON.stringify(payload).replace(/</g,'\\u003c')+');')
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
