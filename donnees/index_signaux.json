@@ -1,0 +1,38 @@
+[
+  {
+    "id": "clap_d_30cm_micro_1_proche",
+    "name": "Clap d 30cm micro 1 proche",
+    "Dcm": 30,
+    "file": "signaux/clap_d_30cm_micro_1_proche.json"
+  },
+  {
+    "id": "clap_d_40cm_micro_1_proche",
+    "name": "Clap d 40cm micro 1 proche",
+    "Dcm": 40,
+    "file": "signaux/clap_d_40cm_micro_1_proche.json"
+  },
+  {
+    "id": "clap_d_50cm_micro_1_eloigne",
+    "name": "Clap d 50cm micro 1 eloigne",
+    "Dcm": 50,
+    "file": "signaux/clap_d_50cm_micro_1_eloigne.json"
+  },
+  {
+    "id": "clap_d_50cm_micro_1_proche",
+    "name": "Clap d 50cm micro 1 proche",
+    "Dcm": 50,
+    "file": "signaux/clap_d_50cm_micro_1_proche.json"
+  },
+  {
+    "id": "clap_d_60cm_micro_1_proche",
+    "name": "Clap d 60cm micro 1 proche",
+    "Dcm": 60,
+    "file": "signaux/clap_d_60cm_micro_1_proche.json"
+  },
+  {
+    "id": "clap_d_70cm_micro_1_proche",
+    "name": "Clap d 70cm micro 1 proche",
+    "Dcm": 70,
+    "file": "signaux/clap_d_70cm_micro_1_proche.json"
+  }
+]
