@@ -54,6 +54,7 @@ function doPost(e) {
     attemptId = String(d.attemptId || '');
     kind = String(d.kind || '');
     if (!/^[a-zA-Z0-9-]{10,100}$/.test(attemptId)) throw new Error('Identifiant de tentative invalide');
+    if(kind==='measure')return receiveMeasure_(d);
     if (!['numeric', 'presentation'].includes(kind)) throw new Error('Type d’évaluation inconnu');
     const student = safeText_(d.student, 80);
     const classe = safeText_(d.classe, 30);
@@ -158,4 +159,105 @@ function respond_(payload) {
     'try{window.top.postMessage(' + json + ',"*");}catch(e){}' +
     'try{window.parent.postMessage(' + json + ',"*");}catch(e){}' +
     '</'+'script><p>Réception traitée. Revenez sur la page de l’activité.</p>');
+}
+
+
+// Mesures de paillasse : classeur privé distinct des notes, synthèses publiques uniquement.
+const CH12_MEASURES_ID = '1fB9X_uX010M6tvFrcvLlqXMUyzVT2wZcXTxR7ZxLKvA';
+const CH12_PUBLIC_STATS_ID = '1DXAthBSkv-H89I0oG4DaIU2e1HdOpwyxnP2ftK3VbnQ';
+
+function receiveMeasure_(d) {
+  const classe=String(d.classe||'').trim(),binome=number_(d.binome),D=number_(d.D),dt=number_(d.dt);
+  if(!['2nde 1','2nde 5'].includes(classe)||!Number.isInteger(binome)||binome<1||binome>60||D<=0||dt<=0)
+    throw new Error('Vérifie la classe, le binôme, la distance en mètres et le retard en millisecondes.');
+  const speed=1000*D/dt;
+  if(!Number.isFinite(speed)||speed<=0||speed>25000)throw new Error('Vérifie les unités : la célérité calculée est incompatible avec cette trame.');
+  const ss=SpreadsheetApp.openById(CH12_MEASURES_ID),sh=ss.getSheetByName('Mesures');
+  if(!sh)throw new Error('Onglet Mesures introuvable');
+  const lock=LockService.getScriptLock();lock.waitLock(20000);
+  let receipt;
+  try {
+    const rows=sh.getLastRow()>1?sh.getRange(2,1,sh.getLastRow()-1,8).getValues():[];
+    const previous=rows.find(row=>String(row[6])===d.attemptId);
+    if(previous){
+      if(Number(previous[1])!==binome||Number(previous[2])!==D||Number(previous[3])!==dt||String(previous[5])!==classe)
+        throw new Error('Cet identifiant correspond déjà à un autre relevé.');
+      receipt=String(previous[7]);
+    }else{
+      receipt=Utilities.getUuid().slice(0,8).toUpperCase();
+      const row=sh.getLastRow()+1;
+      sh.appendRow([new Date(),binome,D,dt,'=1000*C'+row+'/D'+row,classe,d.attemptId,receipt]);
+      SpreadsheetApp.flush();
+    }
+    refreshMeasureSummaries_();
+  }finally{lock.releaseLock();}
+  return respond_({type:'son-measure',ok:true,attemptId:d.attemptId,receipt,classe,binome,D,dt,speed});
+}
+
+function measureStatistics_(speeds) {
+  const n=speeds.length,mean=n?speeds.reduce((a,b)=>a+b,0)/n:null;
+  const sigma=n>1?Math.sqrt(speeds.reduce((a,v)=>a+(v-mean)**2,0)/(n-1)):null;
+  const u=n>1?sigma/Math.sqrt(n):null;
+  const start=n?Math.min(300,Math.floor(Math.min(...speeds)/25)*25):300;
+  const end=n?Math.max(450,(Math.floor(Math.max(...speeds)/25)+1)*25):450;
+  const bins=[];
+  for(let low=start;low<end;low+=25)bins.push([low+' ≤ v < '+(low+25),speeds.filter(v=>v>=low&&v<low+25).length]);
+  return {n,mean,sigma,u,bins};
+}
+
+function writeMeasureSummary_(sh,speeds,label) {
+  const data=measureStatistics_(speeds);
+  sh.getRange('A1:C5').setValues([
+    ['SYNTHÈSE — '+label,'Valeur','Unité'],
+    ['Nombre de mesures valides',data.n,''],
+    ['Célérité moyenne',data.mean===null?'':data.mean,'m/s'],
+    ['Écart-type expérimental',data.sigma===null?'':data.sigma,'m/s'],
+    ['Incertitude-type sur la moyenne',data.u===null?'':data.u,'m/s']
+  ]);
+  sh.getRange('A6:C7').setValues([['Mise à jour',new Date(),''],['Classe de vitesses (m/s)','Effectif','']]);
+  // Effacer uniquement l'ancien histogramme dérivé, jamais les mesures.
+  if(sh.getLastRow()>7)sh.getRange(8,1,sh.getLastRow()-7,2).clearContent();
+  if(data.bins.length+7>sh.getMaxRows())sh.insertRowsAfter(sh.getMaxRows(),data.bins.length+7-sh.getMaxRows());
+  sh.getRange(8,1,data.bins.length,2).setValues(data.bins);
+  sh.getRange('B3:B5').setNumberFormat('0.000000');
+  sh.getRange('B6').setNumberFormat('dd/mm/yyyy hh:mm:ss');
+  const chart=sh.newChart().setChartType(Charts.ChartType.COLUMN).addRange(sh.getRange(7,1,data.bins.length+1,2))
+    .setPosition(8,4,0,0).setOption('title','Répartition des célérités — '+label)
+    .setOption('width',620).setOption('height',350).setOption('legend',{position:'none'})
+    .setOption('hAxis',{title:'Célérité v (m/s) — classes de largeur 25 m/s'})
+    .setOption('vAxis',{title:'Effectif',minValue:0,format:'0'}).build();
+  sh.getCharts().forEach(c=>sh.removeChart(c));sh.insertChart(chart);
+}
+
+function refreshMeasureSummaries_() {
+  const ss=SpreadsheetApp.openById(CH12_MEASURES_ID),sh=ss.getSheetByName('Mesures');
+  const rows=sh.getLastRow()>1?sh.getRange(2,1,sh.getLastRow()-1,8).getValues():[];
+  const valid=rows.filter(r=>Number(r[2])>0&&Number(r[3])>0&&Number.isFinite(Number(r[4]))&&Number(r[4])>0);
+  const all=valid.map(r=>Number(r[4]));
+  writeMeasureSummary_(ss.getSheetByName('Synthèse PROF'),all,'toutes les classes');
+  const publicSs=SpreadsheetApp.openById(CH12_PUBLIC_STATS_ID);
+  writeMeasureSummary_(publicSs.getSheetByName('Synthèse élèves'),all,'toutes les classes');
+  ['2nde 1','2nde 5'].forEach(classe=>{
+    const title='Synthèse '+classe,tab=publicSs.getSheetByName(title);
+    if(!tab)throw new Error('Onglet collectif introuvable : '+title);
+    writeMeasureSummary_(tab,valid.filter(r=>String(r[5])===classe).map(r=>Number(r[4])),classe);
+  });
+  SpreadsheetApp.flush();
+}
+
+// Confirmation par une lecture indépendante : aucune note ni identité n'est exposée.
+function doGet(e) {
+  const p=e&&e.parameter||{},cb=String(p.callback||'');
+  if(!/^ch12MeasureReceipt_[a-zA-Z0-9_]+$/.test(cb))return ContentService.createTextOutput('Requête non prise en charge.');
+  let payload={type:'son-measure-receipt',ok:false,attemptId:String(p.attemptId||'')};
+  if(/^[a-zA-Z0-9-]{10,100}$/.test(payload.attemptId)){
+    try{
+      const sh=SpreadsheetApp.openById(CH12_MEASURES_ID).getSheetByName('Mesures');
+      const rows=sh.getLastRow()>1?sh.getRange(2,7,sh.getLastRow()-1,2).getValues():[];
+      const found=rows.find(row=>String(row[0])===payload.attemptId);
+      if(found)payload={...payload,ok:true,receipt:String(found[1])};
+    }catch(error){payload.error='Confirmation momentanément indisponible.';}
+  }
+  return ContentService.createTextOutput(cb+'('+JSON.stringify(payload).replace(/</g,'\\u003c')+');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
