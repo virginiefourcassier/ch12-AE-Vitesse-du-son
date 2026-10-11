@@ -118,7 +118,7 @@ function gradeNumeric_(tasks) {
     const kind=String(t.kind),D=number_(t.D),dt=number_(t.measuredDt),v=number_(t.givenV),response=number_(t.response);
     if (!(kind in modes) || D<=0 || dt<=0 || v<=0 || response<=0) throw new Error('Exercice '+(i+1)+' invalide');
     modes[kind]++;
-    const expected=kind==='v'?D/(dt/1000):kind==='D'?v*dt/1000:D/v*1000;
+    const expected=kind==='v'?D/(dt/1000):kind==='D'?v*dt/1000:dt;
     const tolerance=kind==='dt'?Math.max(.025,.03*expected):Math.max(kind==='v'?5:.008,.04*expected);
     const ok=Math.abs(response-expected)<=tolerance;
     points.push(ok?1:0);
