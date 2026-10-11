@@ -221,11 +221,11 @@ function writeMeasureSummary_(sh,speeds,label) {
   sh.getRange(8,1,data.bins.length,2).setValues(data.bins);
   sh.getRange('B3:B5').setNumberFormat('0.000000');
   sh.getRange('B6').setNumberFormat('dd/mm/yyyy hh:mm:ss');
-  const chart=sh.newChart().setChartType(Charts.ChartType.COLUMN).addRange(sh.getRange(7,1,data.bins.length+1,2))
+  const chart=sh.newChart().setChartType(Charts.ChartType.COLUMN).setNumHeaders(1).addRange(sh.getRange(7,1,data.bins.length+1,2))
     .setPosition(8,4,0,0).setOption('title','Répartition des célérités — '+label)
     .setOption('width',620).setOption('height',350).setOption('legend',{position:'none'})
     .setOption('hAxis',{title:'Célérité v (m/s) — classes de largeur 25 m/s'})
-    .setOption('vAxis',{title:'Effectif',minValue:0,format:'0'}).build();
+    .setOption('vAxis',{title:'Effectif',minValue:0,format:'0',ticks:Array.from({length:Math.max(1,...data.bins.map(b=>b[1]))+1},(_,i)=>i)}).build();
   sh.getCharts().forEach(c=>sh.removeChart(c));sh.insertChart(chart);
 }
 
@@ -261,3 +261,5 @@ function doGet(e) {
   return ContentService.createTextOutput(cb+'('+JSON.stringify(payload).replace(/</g,'\\u003c')+');')
     .setMimeType(ContentService.MimeType.JAVASCRIPT);
 }
+
+function actualiserSyntheses(){refreshMeasureSummaries_();}
