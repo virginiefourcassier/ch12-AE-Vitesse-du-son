@@ -168,7 +168,7 @@ const CH12_PUBLIC_STATS_ID = '1DXAthBSkv-H89I0oG4DaIU2e1HdOpwyxnP2ftK3VbnQ';
 
 function receiveMeasure_(d) {
   const classe=String(d.classe||'').trim(),binome=number_(d.binome),D=number_(d.D),dt=number_(d.dt);
-  if(!['2nde 1','2nde 5'].includes(classe)||!Number.isInteger(binome)||binome<1||binome>60||D<=0||dt<=0)
+  if(!Array.from({length:10},(_,i)=>'2nde '+(i+1)).includes(classe)||!Number.isInteger(binome)||binome<1||binome>60||D<=0||dt<=0)
     throw new Error('Vérifie la classe, le binôme, la distance en mètres et le retard en millisecondes.');
   const speed=1000*D/dt;
   if(!Number.isFinite(speed)||speed<=0||speed>25000)throw new Error('Vérifie les unités : la célérité calculée est incompatible avec cette trame.');
@@ -237,7 +237,7 @@ function refreshMeasureSummaries_() {
   writeMeasureSummary_(ss.getSheetByName('Synthèse PROF'),all,'toutes les classes');
   const publicSs=SpreadsheetApp.openById(CH12_PUBLIC_STATS_ID);
   writeMeasureSummary_(publicSs.getSheetByName('Synthèse élèves'),all,'toutes les classes');
-  ['2nde 1','2nde 5'].forEach(classe=>{
+  Array.from({length:10},(_,i)=>'2nde '+(i+1)).forEach(classe=>{
     const title='Synthèse '+classe,tab=publicSs.getSheetByName(title);
     if(!tab)throw new Error('Onglet collectif introuvable : '+title);
     writeMeasureSummary_(tab,valid.filter(r=>String(r[5])===classe).map(r=>Number(r[4])),classe);
