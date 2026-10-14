@@ -27,7 +27,8 @@
     </ol></div>
     <div class="docs-temporal-intro" aria-labelledby="docsTemporalTitle">
       <h4 id="docsTemporalTitle">Qu’est-ce qu’une représentation temporelle du signal ?</h4>
-      <p>Le dispositif d’acquisition mesure la tension électrique à des dates successives. Une <strong>représentation temporelle du signal</strong> montre comment cette tension évolue au cours du temps : la <strong>date t</strong> se lit sur l’axe horizontal, et la <strong>tension U</strong> sur l’axe vertical. Chaque point associe une date à la tension mesurée à cette date. Pour lire un point de la courbe, repère donc ses deux coordonnées : <strong>« À quelle date ? Quelle tension ? »</strong></p>
+      <p>Une <strong>représentation temporelle</strong> est une courbe qui représente l’évolution d’une grandeur physique au cours du temps : la <strong>date t est en abscisse</strong>, c’est-à-dire sur l’axe horizontal. La grandeur étudiée se lit sur l’axe vertical ; ce n’est pas nécessairement une tension électrique.</p>
+      <p><strong>Dans notre expérience,</strong> le dispositif d’acquisition mesure la tension électrique du microphone à des dates successives. L’axe vertical porte donc la <strong>tension U</strong>. Chaque point associe une date à la tension mesurée à cette date : <strong>« À quelle date ? Quelle tension ? »</strong></p>
       <figure class="docs-temporal-figure">
         <svg viewBox="0 0 680 290" role="img" aria-labelledby="docsTemporalSvgTitle docsTemporalSvgDesc">
           <title id="docsTemporalSvgTitle">Lire la date et la tension d’un point de la représentation temporelle</title>
@@ -47,8 +48,8 @@
         <figcaption><strong>Lis d’abord la date, puis la tension.</strong> Ici, le point P indique : <span class="math">t = 2,0 ms</span> et <span class="math">U = 1,0 V</span>. Ces valeurs illustrent la lecture des axes.</figcaption>
       </figure>
     </div>
-    <div class="docs-key"><strong>À retenir :</strong> sur la <strong>représentation temporelle du signal</strong>, on lit la <strong>tension électrique U</strong> en fonction de la <strong>date t</strong>. Nous utilisons ce signal pour repérer l’arrivée du son.</div>
-    <div class="docs-check"><p><strong>Sans relire :</strong> que trouve-t-on sur l’axe vertical de la représentation temporelle du signal ?</p><div class="docs-options"><button type="button" onclick="documentFeedback('signal',true)">La tension électrique</button><button type="button" onclick="documentFeedback('signal',false)">La célérité du son</button></div><p id="docsFeedback_signal" aria-live="polite"></p></div>
+    <div class="docs-key"><strong>À retenir :</strong> dans une <strong>représentation temporelle</strong>, la <strong>date t</strong> se lit toujours sur l’axe horizontal. Dans notre expérience, l’axe vertical représente la <strong>tension électrique U</strong>. Nous utilisons ce signal pour repérer l’arrivée du son.</div>
+    <div class="docs-check"><p><strong>Sans relire :</strong> quelle grandeur lit-on sur l’axe horizontal d’une représentation temporelle ?</p><div class="docs-options"><button type="button" onclick="documentFeedback('signal',true)">La date t</button><button type="button" onclick="documentFeedback('signal',false)">La tension U</button></div><p id="docsFeedback_signal" aria-live="polite"></p></div>
   </article>
 
   <article class="docs-panel" data-doc-panel="1" hidden>
@@ -433,7 +434,7 @@ function showDocument(i){
   heading.focus({preventScroll:true});heading.scrollIntoView({block:'start',behavior:'instant'});
 }
 function documentFeedback(key,correct){
-  const answers={signal:['Oui : l’axe vertical représente la tension électrique U, mesurée en volts.','Reprends la chaîne de mesure : le microphone fournit un signal électrique. La célérité sera calculée ensuite.'],starts:['Oui : relève les dates sur l’axe horizontal, puis calcule Δt = t₂ − t₁.','Les tensions se lisent sur l’axe vertical. Pour calculer Δt, il faut relever les dates sur l’axe horizontal.'],temperature:['Oui : dans le tableau, la célérité passe de 325 m·s⁻¹ à −10 °C à 349 m·s⁻¹ à 30 °C.','Compare deux lignes du tableau : à 20 °C, la célérité vaut environ 343 m·s⁻¹ ; à 30 °C, environ 349 m·s⁻¹.']};
+  const answers={signal:['Oui : dans une représentation temporelle, on lit la date t sur l’axe horizontal (en abscisse).','Dans notre expérience, la tension U se lit sur l’axe vertical. Dans toute représentation temporelle, la date t se lit sur l’axe horizontal.'],starts:['Oui : relève les dates sur l’axe horizontal, puis calcule Δt = t₂ − t₁.','Les tensions se lisent sur l’axe vertical. Pour calculer Δt, il faut relever les dates sur l’axe horizontal.'],temperature:['Oui : dans le tableau, la célérité passe de 325 m·s⁻¹ à −10 °C à 349 m·s⁻¹ à 30 °C.','Compare deux lignes du tableau : à 20 °C, la célérité vaut environ 343 m·s⁻¹ ; à 30 °C, environ 349 m·s⁻¹.']};
   const target=$('docsFeedback_'+key);target.textContent=answers[key][correct?0:1];target.className=correct?'docs-correction':'docs-feedback-retry';
 }
 function openDocumentMedia(kind){
