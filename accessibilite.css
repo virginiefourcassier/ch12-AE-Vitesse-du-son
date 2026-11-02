@@ -1,0 +1,29 @@
+/* Consignes segmentées et aides facultatives — novembre 2026. */
+nav button{background:#205f98;color:#fff;border:2px solid transparent}
+nav button:nth-child(5){background:#21613b;color:#fff}
+nav button:nth-child(6),nav button:nth-child(7){background:#a52c36;color:#fff}
+nav button.active{outline:3px solid #172d46;outline-offset:2px;box-shadow:inset 0 -4px 0 #fff}
+nav button:focus-visible,summary:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #5b327b;outline-offset:3px}
+.consigne-ligne{display:block;margin:.35rem 0}
+.aide-eleve{margin:.65rem 0;border:1px solid #c3afd2;border-radius:9px;background:#f6f0fb;padding:.6rem .8rem}
+.aide-eleve summary{cursor:pointer;color:#50306a;font-weight:bold;line-height:1.5}
+.aide-eleve p{margin:.5rem 0;max-width:70ch}
+.etape-mesure{border-left:5px solid #205f98;padding:.2rem .8rem;margin:.6rem 0}
+.etape-mesure h4{font-size:1.05rem;margin:.3rem 0}
+.etape-mesure p{margin:.3rem 0}
+.mesure-action{display:flex;gap:.7rem;align-items:end;flex-wrap:wrap;margin:.6rem 0}
+.mesure-action label{margin:0;max-width:28rem}
+.mesure-action input{width:13rem;max-width:100%}
+.ruler-output{background:#eef5fc;border:1px solid #b9ccdd;border-radius:8px;padding:.7rem;font-weight:bold}
+.question-ruler-frame{display:block!important;max-width:100%;margin:.8rem auto}
+.question-ruler-overlay{touch-action:none}
+.question-ruler-marker::after{content:attr(data-label);position:absolute;top:2px;left:4px;background:#fff;color:#172d46;font-size:13px;font-weight:bold;padding:1px 4px;border:1px solid currentColor}
+.calculatrice-simple{max-width:360px;margin:.7rem 0}
+.calculatrice-simple input{width:100%;font-size:1.15rem;background:#fff}
+.calculatrice-touches{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin-top:.5rem}
+.calculatrice-touches button{min-height:44px;margin:0;padding:.4rem}
+.calculatrice-resultat{display:block;min-height:2rem;margin:.5rem 0;overflow-wrap:anywhere}
+.calculatrice-outils{display:flex;gap:.4rem;flex-wrap:wrap}
+.test-question .question-demande{background:#eef5fc;padding:.65rem;border-radius:8px}
+.test-question .ruler-help{margin-bottom:.6rem}
+@media(max-width:650px){nav{gap:.4rem!important}nav button{font-size:.88rem;padding:.5rem}.etape-mesure{padding-left:.6rem}.aide-eleve{padding:.5rem}.question-ruler-marker::after{font-size:11px}}
