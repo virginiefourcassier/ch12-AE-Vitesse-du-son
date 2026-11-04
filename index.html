@@ -407,7 +407,7 @@ window.addEventListener('message',event=>{
     const d=event.data;
     const allowed=kind==='thunder'?[0,5,95,100]:[0,50,100];
     if(d.maxScore!==100||!allowed.includes(d.rawScore))return;
-    if(!(kind==='thunder'?['completed','passed','failed']:['completed','passed']).includes(d.status)){geniallyStatus(kind,'Progression : '+d.rawScore+'/100. Poursuis jusqu’à la fin pour enregistrer ta note.');return}
+    if(!(kind==='thunder'?(d.rawScore===100&&['completed','passed'].includes(d.status)):['completed','passed'].includes(d.status))){geniallyStatus(kind,'Progression : '+d.rawScore+'/100. Poursuis jusqu’à la fin pour enregistrer ta note.');return}
     a.pending={rawScore:d.rawScore,maxScore:100,status:d.status};a.score=d.rawScore/20;sendGenially(kind);
   }
 });
