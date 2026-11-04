@@ -372,7 +372,7 @@ function startGenially(kind){
   const attemptId=Date.now()+'-'+crypto.randomUUID();
   const attempt={kind,attemptId,student,classe,score:null,pending:null,confirmed:false,sending:false};
   geniallyAttempts.set(kind,attempt);
-  const frame=$('genFrame_'+kind);frame.hidden=false;frame.src=geniallyPaths[kind]+'?attempt='+encodeURIComponent(attemptId);
+  const frame=$('genFrame_'+kind);frame.hidden=false;frame.src=geniallyPaths[kind]+'?attempt='+encodeURIComponent(attemptId)+(kind==='thunder'?'&disablePlayIframe=true':'');
   $('genStart_'+kind).hidden=true;$('genVerify_'+kind).hidden=true;
   geniallyStatus(kind,'Activité ouverte pour '+student+' — '+classe+'. Termine le parcours pour enregistrer ta note sur 5.');
 }
